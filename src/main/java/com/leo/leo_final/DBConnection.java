@@ -7,9 +7,10 @@ import java.sql.SQLException;
 public class DBConnection {
     private static DBConnection instance;
     private Connection connection;
-    private String url = "jdbc:mysql://localhost:3306/chat_app";
+    private String url = "jdbc:mysql://localhost:3306/leo_chat";
     private String username = "root";
     private String password = "";
+    //@@##Gw5869
 
     private DBConnection() throws SQLException {
         try {
