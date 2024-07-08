@@ -11,7 +11,7 @@ import java.util.*;
 public class publicGroup {
 
     // Endpoint to create a new group
-    @PostMapping("create")
+    @PostMapping("/create")
     public Map<String, Object> createGroup(@RequestBody Map<String, Object> groupDetails) {
         String groupName = (String) groupDetails.get("groupName");
         int groupAdminId = (int) groupDetails.get("groupAdminId");
@@ -20,7 +20,7 @@ public class publicGroup {
 
         try {
             Connection connection = DBConnection.getInstance().getConnection();
-            String insertQuery = "INSERT INTO `publicgroups` (groupName, groupAdminId) VALUES (?, ?)";
+            String insertQuery = "INSERT INTO publicgroups (groupName, groupAdminId) VALUES (?, ?)";
             PreparedStatement insertStatement = connection.prepareStatement(insertQuery, Statement.RETURN_GENERATED_KEYS);
             insertStatement.setString(1, groupName);
             insertStatement.setInt(2, groupAdminId);
@@ -30,7 +30,8 @@ public class publicGroup {
                 ResultSet keys = insertStatement.getGeneratedKeys();
                 if (keys.next()) {
                     int groupId = keys.getInt(1);
-                    response.put("groupId", groupId);
+                    String formattedGroupId = String.format("%06d", groupId);
+                    response.put("groupId", formattedGroupId);
                     response.put("groupName", groupName);
                     response.put("groupAdminId", groupAdminId);
                     response.put("status", "Group created successfully");
@@ -47,6 +48,7 @@ public class publicGroup {
 
         return response;
     }
+
 
     // Endpoint to update users in a group
     @PostMapping("/{groupId}/users")
@@ -131,7 +133,6 @@ public class publicGroup {
         return response;
     }
 
-    // Endpoint to fetch group admin by groupId
     @GetMapping("/{groupId}/admin")
     public Map<String, Object> getGroupAdmin(@PathVariable int groupId) {
         Map<String, Object> response = new HashMap<>();
@@ -149,7 +150,9 @@ public class publicGroup {
                 int adminId = resultSet.getInt("id");
                 String adminName = resultSet.getString("name");
                 String adminPhoneNumber = resultSet.getString("phoneNumber");
+                String formattedGroupId = String.format("%06d", groupId);
 
+                response.put("groupId", formattedGroupId);
                 response.put("adminId", adminId);
                 response.put("adminName", adminName);
                 response.put("adminPhoneNumber", adminPhoneNumber);
@@ -164,6 +167,7 @@ public class publicGroup {
 
         return response;
     }
+
     @GetMapping("/getPublicGroupDetails")
     public Map<String, Object> getPublicGroupDetails(@RequestParam("groupName") String groupName) {
         Map<String, Object> response = new HashMap<>();
@@ -178,7 +182,8 @@ public class publicGroup {
 
             if (groupResultSet.next()) {
                 int groupId = groupResultSet.getInt("groupId");
-                response.put("groupId", groupId);
+                String formattedGroupId = String.format("%06d", groupId);
+                response.put("groupId", formattedGroupId);
                 response.put("groupName", groupResultSet.getString("groupName"));
                 response.put("groupAdminId", groupResultSet.getInt("groupAdminId"));
                 response.put("createdAt", groupResultSet.getTimestamp("createdAt"));
@@ -209,6 +214,7 @@ public class publicGroup {
         return response;
     }
 
+
     // Endpoint to fetch all group information including group users by groupId
     @GetMapping("/{groupId}")
     public Map<String, Object> getGroupInfo(@PathVariable int groupId) {
@@ -228,9 +234,11 @@ public class publicGroup {
             ResultSet resultSet = statement.executeQuery();
 
             List<Map<String, Object>> usersList = new ArrayList<>();
+            String formattedGroupId = String.format("%06d", groupId);
 
             while (resultSet.next()) {
                 if (response.isEmpty()) {
+                    response.put("groupId", formattedGroupId);
                     response.put("groupName", resultSet.getString("groupName"));
                     response.put("groupAdminId", resultSet.getInt("groupAdminId"));
                     response.put("adminName", resultSet.getString("adminName"));
@@ -255,6 +263,8 @@ public class publicGroup {
 
         return response;
     }
+
+
     // get all public groups
     @GetMapping("/groups")
     public List<Map<String, Object>> getAllGroups() {
@@ -268,7 +278,8 @@ public class publicGroup {
 
             while (resultSet.next()) {
                 Map<String, Object> group = new HashMap<>();
-                group.put("groupId", resultSet.getInt("groupId"));
+                String formattedGroupId = String.format("%06d", resultSet.getInt("groupId"));
+                group.put("groupId", formattedGroupId);
                 group.put("groupName", resultSet.getString("groupName"));
                 group.put("groupAdminId", resultSet.getInt("groupAdminId"));
                 group.put("createdAt", resultSet.getTimestamp("createdAt"));
@@ -285,4 +296,5 @@ public class publicGroup {
 
         return responseList;
     }
+
 }

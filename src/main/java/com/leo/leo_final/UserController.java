@@ -391,7 +391,7 @@ public class UserController {
 
                 String profilePicUrl = resultSet.getString("profilePicUrl");
                 if (profilePicUrl != null && !profilePicUrl.isEmpty()) {
-                    String fileUrl = "http://localhost:8080/uploads/profileImage/" + profilePicUrl;
+                    String fileUrl = "http://45.126.125:8080/uploads/profileImage/" + profilePicUrl;
                     response.put("profilePicUrl", fileUrl);
                 } else {
                     response.put("profilePicUrl", "No image available");
