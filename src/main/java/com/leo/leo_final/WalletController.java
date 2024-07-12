@@ -1,6 +1,5 @@
 package com.leo.leo_final;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -11,9 +10,6 @@ import java.util.*;
 @RestController
 @RequestMapping("/api/v1/wallet")
 public class WalletController {
-
-    @Autowired
-    private DBConnection dbConnection;
 
     // Endpoint to save wallet data
     @PostMapping("/save")
@@ -29,7 +25,7 @@ public class WalletController {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            Connection connection = dbConnection.getConnection();
+            Connection connection = DBConnection.getInstance().getConnection();
 
             // Check if userId already exists in wallet table
             String checkQuery = "SELECT * FROM wallet WHERE userId = ?";
@@ -96,7 +92,7 @@ public class WalletController {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            Connection connection = dbConnection.getConnection();
+            Connection connection = DBConnection.getInstance().getConnection();
 
             String selectQuery = "SELECT diamondAmount FROM wallet WHERE userId = ?";
             PreparedStatement selectStatement = connection.prepareStatement(selectQuery);
@@ -124,7 +120,7 @@ public class WalletController {
         List<Map<String, Object>> transactionHistory = new ArrayList<>();
 
         try {
-            Connection connection = dbConnection.getConnection();
+            Connection connection = DBConnection.getInstance().getConnection();
 
             String selectQuery = "SELECT * FROM walletHistory WHERE userId = ?";
             PreparedStatement selectStatement = connection.prepareStatement(selectQuery);
