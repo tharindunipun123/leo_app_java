@@ -14,11 +14,10 @@ import java.util.*;
 @RestController
 @RequestMapping("/api/v1/voiceroom")
 public class voiceroomController {
-
     // 1. Save the data and return all details for the primary key
     @PostMapping("/save")
     public Map<String, Object> saveVoiceroom(@RequestBody Map<String, Object> voiceroomDetails) {
-        int groupId = (int) voiceroomDetails.get("groupId");
+        String groupId = (String) voiceroomDetails.get("groupId");
         String voiceRoomId = (String) voiceroomDetails.get("voiceRoomId");
         boolean isCreated = (boolean) voiceroomDetails.get("isCreated");
 
@@ -30,7 +29,7 @@ public class voiceroomController {
             // Check if the groupId already exists
             String checkQuery = "SELECT * FROM voiceRoom WHERE groupId = ?";
             PreparedStatement checkStatement = connection.prepareStatement(checkQuery);
-            checkStatement.setInt(1, groupId);
+            checkStatement.setString(1, groupId);
             ResultSet resultSet = checkStatement.executeQuery();
 
             if (resultSet.next()) {
@@ -41,7 +40,7 @@ public class voiceroomController {
             // Insert data into voiceRoom table
             String insertQuery = "INSERT INTO voiceRoom (groupId, voiceRoomId, isCreated) VALUES (?, ?, ?)";
             PreparedStatement insertStatement = connection.prepareStatement(insertQuery, Statement.RETURN_GENERATED_KEYS);
-            insertStatement.setInt(1, groupId);
+            insertStatement.setString(1, groupId);
             insertStatement.setString(2, voiceRoomId);
             insertStatement.setBoolean(3, isCreated);
 
@@ -58,7 +57,7 @@ public class voiceroomController {
 
                     if (resultSet.next()) {
                         response.put("id", resultSet.getInt("id"));
-                        response.put("groupId", resultSet.getInt("groupId"));
+                        response.put("groupId", resultSet.getString("groupId"));
                         response.put("voiceRoomId", resultSet.getString("voiceRoomId"));
                         response.put("isCreated", resultSet.getBoolean("isCreated"));
                         response.put("createdAt", resultSet.getTimestamp("createdAt"));
@@ -83,7 +82,7 @@ public class voiceroomController {
 
     // 2. Get all details using groupId
     @GetMapping("/roomdetails/{groupId}")
-    public Map<String, Object> getVoiceroomDetails(@PathVariable int groupId) {
+    public Map<String, Object> getVoiceroomDetails(@PathVariable String groupId) {
         Map<String, Object> response = new HashMap<>();
 
         try {
@@ -91,12 +90,12 @@ public class voiceroomController {
 
             String selectQuery = "SELECT * FROM voiceRoom WHERE groupId = ?";
             PreparedStatement selectStatement = connection.prepareStatement(selectQuery);
-            selectStatement.setInt(1, groupId);
+            selectStatement.setString(1, groupId);
             ResultSet resultSet = selectStatement.executeQuery();
 
             if (resultSet.next()) {
                 response.put("id", resultSet.getInt("id"));
-                response.put("groupId", resultSet.getInt("groupId"));
+                response.put("groupId", resultSet.getString("groupId"));
                 response.put("voiceRoomId", resultSet.getString("voiceRoomId"));
                 response.put("isCreated", resultSet.getBoolean("isCreated"));
                 response.put("createdAt", resultSet.getTimestamp("createdAt"));
@@ -115,7 +114,7 @@ public class voiceroomController {
 
     // 3. Update voice room and isCreated state using groupId
     @PutMapping("/update/{groupId}")
-    public Map<String, Object> updateVoiceroom(@PathVariable int groupId, @RequestBody Map<String, Object> updateDetails) {
+    public Map<String, Object> updateVoiceroom(@PathVariable String groupId, @RequestBody Map<String, Object> updateDetails) {
         String voiceRoomId = (String) updateDetails.get("voiceRoomId");
         boolean isCreated = (boolean) updateDetails.get("isCreated");
 
@@ -128,7 +127,7 @@ public class voiceroomController {
             PreparedStatement updateStatement = connection.prepareStatement(updateQuery);
             updateStatement.setString(1, voiceRoomId);
             updateStatement.setBoolean(2, isCreated);
-            updateStatement.setInt(3, groupId);
+            updateStatement.setString(3, groupId);
 
             int rowsAffected = updateStatement.executeUpdate();
             if (rowsAffected > 0) {
@@ -146,7 +145,7 @@ public class voiceroomController {
 
     // 4. Get all group details using groupId
     @GetMapping("/group-details/{groupId}")
-    public Map<String, Object> getGroupDetails(@PathVariable int groupId) {
+    public Map<String, Object> getGroupDetails(@PathVariable String groupId) {
         Map<String, Object> response = new HashMap<>();
 
         try {
@@ -155,12 +154,12 @@ public class voiceroomController {
             // Retrieve group information
             String groupQuery = "SELECT * FROM publicgroups WHERE groupId = ?";
             PreparedStatement groupStatement = connection.prepareStatement(groupQuery);
-            groupStatement.setInt(1, groupId);
+            groupStatement.setString(1, groupId);
             ResultSet groupResultSet = groupStatement.executeQuery();
 
             if (groupResultSet.next()) {
                 Map<String, Object> groupInfo = new HashMap<>();
-                groupInfo.put("groupId", groupResultSet.getInt("groupId"));
+                groupInfo.put("groupId", groupResultSet.getString("groupId"));
                 groupInfo.put("groupName", groupResultSet.getString("groupName"));
                 groupInfo.put("groupAdminId", groupResultSet.getInt("groupAdminId"));
 
@@ -169,7 +168,7 @@ public class voiceroomController {
                 // Retrieve group members
                 String membersQuery = "SELECT userId FROM voiceRoom WHERE groupId = ?";
                 PreparedStatement membersStatement = connection.prepareStatement(membersQuery);
-                membersStatement.setInt(1, groupId);
+                membersStatement.setString(1, groupId);
                 ResultSet membersResultSet = membersStatement.executeQuery();
 
                 List<Integer> groupMembers = new ArrayList<>();
@@ -220,7 +219,7 @@ public class voiceroomController {
     }
 
     @GetMapping("/count-members/{groupId}")
-    public Map<String, Object> countGroupMembers(@PathVariable int groupId) {
+    public Map<String, Object> countGroupMembers(@PathVariable String groupId) {
         Map<String, Object> response = new HashMap<>();
 
         try {
@@ -229,7 +228,7 @@ public class voiceroomController {
             // Use the group_members table to count members in the group
             String countQuery = "SELECT COUNT(userId) AS memberCount FROM public_group_members WHERE groupId = ?";
             PreparedStatement countStatement = connection.prepareStatement(countQuery);
-            countStatement.setInt(1, groupId);
+            countStatement.setString(1, groupId);
             ResultSet resultSet = countStatement.executeQuery();
 
             if (resultSet.next()) {
@@ -249,7 +248,7 @@ public class voiceroomController {
     }
 
     @GetMapping("/group-profile-pictures/{groupId}")
-    public Map<String, Object> getGroupProfilePictures(@PathVariable int groupId) {
+    public Map<String, Object> getGroupProfilePictures(@PathVariable String groupId) {
         Map<String, Object> response = new HashMap<>();
 
         try {
@@ -258,7 +257,7 @@ public class voiceroomController {
             String query = "SELECT u.id AS userId, u.profilePicUrl FROM public_group_members gm " +
                     "JOIN users u ON gm.userId = u.id WHERE gm.groupId = ?";
             PreparedStatement statement = connection.prepareStatement(query);
-            statement.setInt(1, groupId);
+            statement.setString(1, groupId);
             ResultSet resultSet = statement.executeQuery();
 
             List<Map<String, Object>> memberDetails = new ArrayList<>();

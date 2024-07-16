@@ -79,6 +79,30 @@ public class statusController {
         statement.setString(3, fileUrl);
         statement.executeUpdate();
     }
+    @DeleteMapping("/deleteStatus")
+    public Map<String, String> deleteStatus(@RequestParam("userId") int userId, @RequestParam("statusId") int statusId) {
+        Map<String, String> response = new HashMap<>();
+
+        try {
+            Connection connection = DBConnection.getInstance().getConnection();
+            String query = "DELETE FROM statuses WHERE userId = ? AND statusId = ?";
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setInt(1, userId);
+            statement.setInt(2, statusId);
+
+            int rowsAffected = statement.executeUpdate();
+            if (rowsAffected > 0) {
+                response.put("status", "Status deleted successfully");
+            } else {
+                response.put("status", "Failed to delete status or status not found");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            response.put("status", "Error occurred while deleting status");
+        }
+
+        return response;
+    }
 
     @PostMapping("/getStatuses")
     public List<Map<String, Object>> getStatuses(@RequestParam("userId") int userId) {
